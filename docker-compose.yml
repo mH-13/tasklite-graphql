@@ -1,0 +1,29 @@
+services:
+  api:
+    build: .
+    environment:
+      PORT: 4000
+      MONGO_URI: mongodb://mongo:27017
+      MONGO_DB: tasklite
+      JWT_SECRET: devsecret
+    ports: ["4000:4000"]
+    depends_on: [mongo]
+    command: ["node", "--loader", "tsx", "src/index.ts"]
+
+  mongo:
+    image: mongo:6
+    ports: ["27017:27017"]
+    volumes:
+      - mongo_data:/data/db
+
+  mongo-express:
+    image: mongo-express:1.0.2
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin
+    ports: ["8081:8081"]
+    depends_on: [mongo]
+
+volumes:
+  mongo_data:
