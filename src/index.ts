@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { createServer } from 'http';
-import { createYoga } from '@graphql-yoga/node';
+import { createYoga } from 'graphql-yoga';
 import { makeSchema } from './graphql/schema.js';
 import { env } from './config/env.js';
 import { UsersRepo } from './repo/mongo/users.js';
