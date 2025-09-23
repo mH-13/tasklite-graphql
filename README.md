@@ -8,15 +8,14 @@ cp .env.example .env    # optional
 docker compose up --build
 # API: http://localhost:4000/graphql
 # Mongo Express (optional): http://localhost:8081 (user/pass: admin/admin)
-````
+```
 
 ### Dev-mode auth
 
 In GraphiQL, add a header:
 
-```
-x-user-id: 64b2a8f1b1c2d3e4f5a6b7c8
-```
+```x-user-id: 64b2a8f1b1c2d3e4f5a6b7c8```
+
 
 ## GraphQL surface (5 APIs)
 
@@ -26,9 +25,10 @@ x-user-id: 64b2a8f1b1c2d3e4f5a6b7c8
 2. `tasks(projectId, status?, assigneeId?, after?, limit=20)`
 
 **Mutations**
-3\. `createProject(name, key)`
-4\. `upsertTask(input)`
-5\. `updateTaskStatus(id, status)`
+
+3. `createProject(name, key)`\
+4. `upsertTask(input)`\
+5. `updateTaskStatus(id, status)`
 
 ## Try it (GraphiQL)
 
@@ -84,7 +84,6 @@ mutation($id: ID!, $pid: ID!) {
 
 
 
-
 ### Run it With Docker
 
 **Run in terminal:**
@@ -119,11 +118,10 @@ npm run dev
 
 Open the same GraphiQL URL and follow the same steps.
 
----
 
-## Why this structure is “minimal yet impactful”
+### Why this structure is “minimal yet impactful”
 
-* Only **3 entities** and **5 APIs**, but you cover:
+* Only **3 entities** and **5 APIs**, but I coverd:
 
   * **Schema design** (types + input)
   * **Resolvers** (thin, focused)
