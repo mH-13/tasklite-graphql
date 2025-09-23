@@ -26,8 +26,8 @@ In GraphiQL, add a header:
 
 **Mutations**
 
-3. `createProject(name, key)`\
-4. `upsertTask(input)`\
+3. `createProject(name, key)`
+4. `upsertTask(input)`
 5. `updateTaskStatus(id, status)`
 
 ## Try it (GraphiQL)
