@@ -5,4 +5,4 @@ RUN npm ci
 COPY tsconfig.json ./
 COPY src ./src
 EXPOSE 4000
-CMD ["node", "--loader", "tsx", "src/index.ts"]
+CMD ["node", "--import", "tsx", "src/index.ts"]
