@@ -5,9 +5,14 @@ import { IsIn, IsOptional, IsString } from 'class-validator';
 
 @InputType()
 export class UpsertTaskInput {
-  @Field(() => ID, { nullable: true }) id?: string; // if omitted -> create
-  @Field(() => ID) projectId!: string;
-  @Field() title!: string;
+  @Field(() => ID, { nullable: true })
+  id?: string;
+
+  @Field(() => ID)
+  projectId!: string;
+
+  @Field(() => String)
+  title!: string;
 
   @Field(() => TaskStatus, { nullable: true })
   @IsOptional()

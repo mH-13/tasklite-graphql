@@ -4,7 +4,12 @@ import { Task } from './Task.js';
 
 @ObjectType()
 export class TaskConnection {
-  @Field(() => [Task]) edges!: Task[];
-  @Field({ nullable: true }) cursor?: string;
-  @Field() hasMore!: boolean;
+  @Field(() => [Task])
+  edges!: Task[];
+
+  @Field(() => String, { nullable: true })
+  cursor?: string;
+
+  @Field(() => Boolean)
+  hasMore!: boolean;
 }

@@ -4,8 +4,15 @@ import { User } from './User.js';
 
 @ObjectType()
 export class Project {
-  @Field(() => ID) id!: string;
-  @Field() name!: string;
-  @Field() key!: string;
-  @Field(() => User) owner!: User;
+  @Field(() => ID)
+  id!: string;
+
+  @Field(() => String)
+  name!: string;
+
+  @Field(() => String)
+  key!: string;
+
+  @Field(() => User)
+  owner!: User;
 }
