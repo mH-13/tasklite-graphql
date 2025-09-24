@@ -1,179 +1,121 @@
-# tasklite-graphql
-Minimal yet impactful GraphQL API (TypeScript + GraphQL Yoga + type-graphql + MongoDB).
+# TaskLite GraphQL
 
-Repo Structure
+A tiny kanban-style API with 5 ops. Minimal yet impactful GraphQL API for task management built with TypeScript, GraphQL Yoga, type-graphql, and MongoDB.
+
+## Features
+
+- **Type-safe GraphQL API** with automatic schema generation
+- **Cursor-based pagination** for efficient data loading
+- **Idempotent operations** for reliable API behavior
+- **Docker-ready** development environment
+- **Clean architecture** with repository pattern
+
+## Tech Stack
+
+- **Backend**: TypeScript, GraphQL Yoga, type-graphql
+- **Database**: MongoDB with optimized indexes
+- **Development**: Docker, tsx, Mongo Express
+- **Architecture**: 4-layer design (API → GraphQL → Repository → Database)
+
+
+## Project Structure
+
+```
+src/
+├── index.ts              # Server bootstrap
+├── config/env.ts         # Environment configuration
+├── graphql/
+│   ├── schema.ts         # Schema builder
+│   ├── types/            # GraphQL types & inputs
+│   └── resolvers/        # Query & mutation resolvers
+├── repo/mongo/           # Database repositories
+└── utils/pagination.ts   # Cursor pagination utilities
 ```
 
-├─ docker-compose.yml          # API + Mongo + Mongo Express
-├─ Dockerfile                  # Container build/run
-├─ package.json                # Scripts
-├─ tsconfig.json               # TS config (decorators enabled)
-├─ src/
-│  ├─ index.ts                 # Server bootstrap
-│  ├─ config/env.ts            # Env (PORT, MONGO_URI, ...)
-│  ├─ graphql/                 # Schema, resolvers, types
-│  ├─ repo/mongo/              # Mongo client + repos
-│  └─ utils/pagination.ts
-└─ LICENSE
+## Architecture Flow
+
+```
+Client Request
+      ↓
+┌─────────────┐
+│ GraphQL API │ ← Parse, validate, route
+└─────────────┘
+      ↓
+┌─────────────┐
+│  Resolvers  │ ← Business logic
+└─────────────┘
+      ↓
+┌─────────────┐
+│ Repositories│ ← Data access
+└─────────────┘
+      ↓
+┌─────────────┐
+│   MongoDB   │ ← Storage
+└─────────────┘
 ```
 
-About
-- Compact GraphQL API (TypeScript + GraphQL Yoga + type-graphql + MongoDB).
+**Request Flow:**
+1. **GraphQL Yoga** → Parse & validate queries
+2. **Context** → Inject auth + repositories
+3. **Resolvers** → Handle business logic
+4. **Repositories** → Manage data operations
+5. **MongoDB** → Store & retrieve data
 
-Docs
-- Start/run, GraphiQL examples, and troubleshooting: see `DEV.md`.
 
+## Quick Start
 
-## Run with Docker (recommended)
 ```bash
-cp .env.example .env    # optional
+# Clone and run with Docker (recommended)
 docker compose up -d --build
-# API: http://localhost:4000/graphql
-# Mongo Express (optional): http://localhost:8081 (user/pass: admin/admin)
+
+# API available at: http://localhost:4000/graphql
+# Mongo Express: http://localhost:8081 (admin/admin)
 ```
 
-### Dev-mode auth
-
-In GraphiQL (Headers panel), add:
-
-```
+**Authentication (dev mode)**: Add header in GraphiQL:
+```json
 { "x-user-id": "64b2a8f1b1c2d3e4f5a6b7c8" }
 ```
 
+## API Overview
 
-## GraphQL surface (5 APIs)
+**5 GraphQL Operations:**
 
-**Queries**
+**Queries:**
+- `me` - Get current user
+- `tasks(projectId, status?, assigneeId?, after?, limit)` - List tasks with pagination
 
-1. `me`
-2. `tasks(projectId: ID!, status?, assigneeId?: ID, after?, limit=20)`
+**Mutations:**
+- `createProject(name, key)` - Create project (idempotent)
+- `upsertTask(input)` - Create or update task
+- `updateTaskStatus(id, status)` - Update task status
 
-**Mutations**
-
-3. `createProject(name: String!, key: String!)`
-4. `upsertTask(input: UpsertTaskInput!)`
-5. `updateTaskStatus(id: ID!, status: TaskStatus!)`
-
-## Try it (GraphiQL)
-
-1. Create a project
+## Example Usage
 
 ```graphql
+# 1. Create project
 mutation {
-  createProject(name: "Maveric Lite", key: "MVL") {
-    id name key owner { id email }
+  createProject(name: "My Project", key: "MP") {
+    id name key owner { email }
   }
 }
-```
-Note: `key` is normalized to uppercase, and creating the same `key` again for the same user returns the existing project (idempotent).
 
-2. Upsert tasks
-
-```graphql
+# 2. Add tasks
 mutation($pid: ID!) {
-  t1: upsertTask(input:{ projectId: $pid, title:"Plan schema", status:IN_PROGRESS }) { id title status }
-  t2: upsertTask(input:{ projectId: $pid, title:"Wire Mongo repo", status:TODO }) { id title status }
+  upsertTask(input: { projectId: $pid, title: "Setup API", status: IN_PROGRESS }) {
+    id title status
+  }
 }
-```
 
-3. List tasks (paginated)
-
-```graphql
+# 3. List tasks
 query($pid: ID!) {
-  tasks(projectId:$pid, limit:1) {
+  tasks(projectId: $pid) {
     edges { id title status createdAt }
-    cursor
-    hasMore
+    hasMore cursor
   }
 }
 ```
 
-4. Update status
+## Development
 
-```graphql
-mutation($id: ID!) {
-  updateTaskStatus(id:$id, status:DONE) { id title status updatedAt }
-}
-```
-
-5. Overwrite via upsert
-
-```graphql
-mutation($id: ID!, $pid: ID!) {
-  upsertTask(input:{ id:$id, projectId:$pid, title:"Plan schema v2", status:DONE }) {
-    id title status updatedAt
-  }
-}
-```
-
-
-
-
-### Run it With Docker
-
-**Run in terminal (detached):**
-
-```bash
-docker compose up -d --build
-```
-
-View logs: `docker compose logs -f api`
-
-Open **[http://localhost:4000/graphql](http://localhost:4000/graphql)** 
-
-In GraphiQL (top-right “Headers” button), add:
-
-```
-{ "x-user-id": "64b2a8f1b1c2d3e4f5a6b7c8" }
-```
-
-Now run the mutations/queries from the README in order:
-
-1. `createProject` → copy the returned `id` as `$pid`.
-2. `upsertTask` (twice).
-3. `tasks` with `projectId = $pid`.
-4. `updateTaskStatus` with the `id` from a task.
-5. `upsertTask` again with `id` to overwrite title/status.
-
-### Without Docker (optional)
-
-Run MongoDB locally or via Docker, then start the API locally.
-
-Option A — local Mongo service listening on 27017:
-
-```bash
-npm ci
-# ensure mongod is running (e.g. system service)
-npm run dev
-```
-
-Option B — only Mongo in Docker and app locally (for live reload):
-
-```bash
-docker compose up -d mongo
-npm ci
-MONGO_URI=mongodb://localhost:27017 npm run dev
-```
-
-Note: Compose runs the API without hot reload (cleaner setup).
-For live reload, prefer running only Mongo in Docker and the app locally.
-`.env.example` is tuned for Docker (`MONGO_URI=mongodb://mongo:27017`).
-For local runs, either omit `.env` or set `MONGO_URI` to `mongodb://localhost:27017`.
-Open the same GraphiQL URL and follow the same steps.
-
-### Troubleshooting
-
-- Port 4000 in use: stop the other process (`lsof -i :4000` → `kill <pid>`) or run `PORT=4001 npm run dev`.
-- Mongo connection refused: start Mongo locally, or run `docker compose up -d mongo`, and ensure `MONGO_URI` points to the running instance.
-
-
-### Why this structure is “minimal yet impactful”
-
-* Only **3 entities** and **5 APIs**, but I coverd:
-
-  * **Schema design** (types + input)
-  * **Resolvers** (thin, focused)
-  * **Repository layer** (Mongo, indexes, pagination)
-  * **Context** (fake auth + repos)
-  * **Cursor pagination**
-  * **Dockerized local infra**
+For detailed setup instructions, GraphiQL examples, troubleshooting, and local development options, see **[DEV.md](./DEV.md)**.

@@ -35,7 +35,7 @@ Environment variables
 - MONGO_DB: Database name (default `tasklite`)
 - JWT_SECRET: Dev-only secret (not used for auth flows here)
 
-Run locally (optional)
+### Run locally (optional)
 Option A — local Mongo service (listening on 27017):
 
 ```
@@ -54,7 +54,7 @@ MONGO_URI=mongodb://localhost:27017 npm run dev
 
 Note: `.env.example` is tuned for Docker (`MONGO_URI=mongodb://mongo:27017`). For local runs, omit `.env` or set `MONGO_URI=mongodb://localhost:27017`.
 
-GraphQL API surface
+### GraphQL API surface
 
 - Queries:
   - `me`
@@ -68,7 +68,7 @@ Types and scalars
 
 - All identifiers use the `ID` scalar throughout inputs, arguments, and object fields (`id`, `projectId`, `assigneeId`). Values are transferred as strings in responses.
 
-Working examples (GraphiQL)
+### Working examples (GraphiQL)
 
 1. Create a project (copy its `id`):
 
@@ -167,7 +167,7 @@ mongosh mongodb://localhost:27017/tasklite \
 
 - To get a task id: run the `tasks` query for your project and copy an `edges[].id`.
 
-Common pitfalls and fixes
+#### Common pitfalls and fixes
 
 - Variable type mismatch:
   - Ensure variables use the `ID` type for identifier arguments (e.g., `$pid: ID!`, `$id: ID!`).

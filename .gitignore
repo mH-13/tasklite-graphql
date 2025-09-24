@@ -2,3 +2,5 @@ node_modules
 dist
 .env
 .DS_Store
+
+ARCHITECTURE_ANALYSIS.md
