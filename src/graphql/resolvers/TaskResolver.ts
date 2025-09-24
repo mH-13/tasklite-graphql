@@ -1,4 +1,4 @@
-import { Arg, Ctx, Int, Mutation, Query, Resolver } from 'type-graphql';
+import { Arg, Ctx, ID, Int, Mutation, Query, Resolver } from 'type-graphql';
 import { Task } from '../types/Task.js';
 import { TaskConnection } from '../types/TaskConnection.js';
 import { UpsertTaskInput } from '../types/inputs.js';
@@ -16,10 +16,10 @@ type CtxType = {
 export class TaskResolver {
   @Query(() => TaskConnection)
   async tasks(
-    @Arg('projectId') projectId: string,
+    @Arg('projectId', () => ID) projectId: string,
     @Arg('status', () => TaskStatus, { nullable: true }) status: TaskStatus | undefined,
-    @Arg('assigneeId', { nullable: true }) assigneeId: string | undefined,
-    @Arg('after', { nullable: true }) after: string | undefined,
+    @Arg('assigneeId', () => ID, { nullable: true }) assigneeId: string | undefined,
+    @Arg('after', () => String, { nullable: true }) after: string | undefined,
     @Arg('limit', () => Int, { defaultValue: 20 }) limit: number,
     @Ctx() ctx: CtxType
   ): Promise<TaskConnection> {
@@ -28,7 +28,10 @@ export class TaskResolver {
   }
 
   @Mutation(() => Task)
-  async upsertTask(@Arg('input') input: UpsertTaskInput, @Ctx() ctx: CtxType): Promise<Task> {
+  async upsertTask(
+    @Arg('input', () => UpsertTaskInput) input: UpsertTaskInput,
+    @Ctx() ctx: CtxType
+  ): Promise<Task> {
     const p = await ctx.repos.projects.getById(input.projectId);
     if (!p) throw new Error('Project not found');
     return ctx.repos.tasks.upsert(input);
@@ -36,7 +39,7 @@ export class TaskResolver {
 
   @Mutation(() => Task)
   async updateTaskStatus(
-    @Arg('id') id: string,
+    @Arg('id', () => ID) id: string,
     @Arg('status', () => TaskStatus) status: TaskStatus,
     @Ctx() ctx: CtxType
   ): Promise<Task> {

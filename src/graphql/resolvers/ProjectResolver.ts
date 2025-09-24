@@ -12,8 +12,8 @@ type CtxType = {
 export class ProjectResolver {
   @Mutation(() => Project)
   async createProject(
-    @Arg('name') name: string,
-    @Arg('key') key: string,
+    @Arg('name', () => String) name: string,
+    @Arg('key', () => String) key: string,
     @Ctx() ctx: CtxType
   ): Promise<Project> {
     const owner = await ctx.repos.users.ensureUser(ctx.currentUserId);
